@@ -1,276 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تطبيق الواجبات اليومية</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<audio id="clickSound" src="https://cdn.jsdelivr.net/gh/rohitghatol/audio-files/click.mp3" preload="auto"></audio>
-<!-- كود OneSignal لإشعارات الجوال حتى لو التطبيق مغلق -->
-<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async="async"></script>
-<script>
-  window.OneSignal = window.OneSignal || [];
-  OneSignal.push(function() {
-    OneSignal.init({
-      appId: "ce2a02a3-54f1-4939-9326-9bf227240424",
-      notifyButton: {
-        enable: true,
-        size: 'large',
-        theme: 'default',
-        position: 'bottom-right',
-        text: {
-          'tip.state.unsubscribed': 'تفعيل الإشعارات',
-          'tip.state.subscribed': 'الإشعارات مفعلة',
-          'tip.state.blocked': 'الإشعارات محجوبة',
-        }
-      }
-    });
-  });
-</script>
-</head>
-<body>
-<!-- إشعار حديث أعلى الصفحة -->
-<div id="modernAlert" class="modern-alert" style="display:none;"></div>
-
-<!-- نافذة تأكيد حديثة للحذف -->
-<div id="modernConfirm" class="modern-confirm" style="display:none;">
-    <div class="modern-confirm-content">
-        <div class="modern-confirm-text">هل أنت متأكد من حذف هذا الواجب القديم؟</div>
-        <div class="modern-confirm-actions">
-            <button id="confirmYes" class="modern-btn">نعم</button>
-            <button id="confirmNo" class="modern-btn">لا</button>
-        </div>
-    </div>
-</div>
-
-<!-- شاشة الترحيب -->
-<div class="welcome-screen" id="welcomeScreen">
-    <h1>مرحباً بك </h1>
-    <div class="developer">تم التطوير بواسطة حسنين</div>
-    <div class="start-btn-wrapper">
-        <button id="startBtn" class="modern-btn start-btn-custom">ابدأ الآن</button>
-    </div>
-    <div class="social-links">
-        <a class="social-item" href="https://instagram.com/8o7y_" target="_blank">
-            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" class="social-icon" />
-            <span>Instagram : <b>8o7y_</b></span>
-        </a>
-        <a class="social-item" href="https://telegram.me/h0_y5" target="_blank">
-            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" class="social-icon" />
-            <span>Telegram : <b>H0_Y5</b></span>
-        </a>
-    </div>
-</div>
-
-<!-- واجهة التطبيق الرئيسية -->
-<div class="container hidden" id="mainApp">
-    <div class="theme-toggle-wrapper">
-        <button id="themeToggle" class="theme-icon-btn" title="تبديل الثيم">
-            <i id="themeIcon" class="fa fa-moon"></i>
-        </button>
-    </div>
-
-    <div class="app-title-modern">
-        <h1>تطبيق الواجبات اليومية</h1>
-    </div>
-
-    <!-- تبويبات -->
-    <div class="tab-buttons">
-        <button id="homeworkTab" class="active">الواجبات</button>
-        <button id="scheduleTab">الجدول</button>
-        <button id="notificationTab">الإشعارات</button>
-    </div>
-
-    <!-- قسم الواجبات -->
-    <div id="homeworkSection">
-
-        <div class="input-section vertical-buttons">
-            <div class="custom-select-wrapper" id="subjectSelectWrapper">
-                <div class="modern-select-btn custom-select-btn" id="subjectSelectBtn">
-                    <span class="select-icon"><i class="fa fa-book"></i></span>
-                    <span class="select-text">اختر المادة</span>
-                    <span class="arrow">▼</span>
-                </div>
-                <ul class="modern-options" id="subjectOptions">
-                    <li class="modern-option" data-value="كيمياء"><span class="emoji">🧪</span> كيمياء</li>
-                    <li class="modern-option" data-value="فيزياء"><span class="emoji">⚡</span> فيزياء</li>
-                    <li class="modern-option" data-value="أحياء"><span class="emoji">🌱</span> أحياء</li>
-                    <li class="modern-option" data-value="رياضيات"><span class="emoji">➗</span> رياضيات</li>
-                    <li class="modern-option" data-value="اللغة العربية"><span class="emoji">📚</span> اللغة العربية</li>
-                    <li class="modern-option" data-value="اللغة الانكليزية"><span class="emoji">🇬🇧</span> اللغة الانكليزية</li>
-                    <li class="modern-option" data-value="التربية الاسلامية"><span class="emoji">🕌</span> التربية الاسلامية</li>
-                </ul>
-            </div>
-            <!-- مربع نص حديث لإدخال الواجب -->
-            <input type="text" id="homeworkInput" class="modern-homework-input" placeholder="اكتب واجبك هنا..." maxlength="120" autocomplete="off" />
-            <button id="addHomeworkBtn" class="animated-homework-btn">
-                <i class="fa fa-plus-circle"></i>
-                <span style="font-size:1.15rem;font-weight:900;letter-spacing:1px;">إضافة واجب </span>
-            </button>
-        </div>
-
-        <!-- زر الواجبات القديمة الجديد -->
-        <button id="showOldTasksBtn" class="modern-toggle" style="margin-bottom:12px;font-size:1.08rem;">
-            <i class="fa fa-history"></i>
-            <span id="showOldTasksText" style="font-size:1.05rem;font-weight:700;">الواجبات القديمة</span>
-        </button>
-
-    <ul id="tasksList" class="modern-list"></ul>
-    <ul id="oldTasksList" class="modern-list"></ul>
-    </div>
-
-    <!-- قسم الجدول -->
-    <div id="scheduleSection" class="hidden">
-        <button id="showAddScheduleSettingsBtn" class="modern-btn" style="margin-bottom:18px;font-size:1.1rem;">إضافة جدول</button>
-        <div id="addScheduleSettingsWrapper" style="display:none;">
-            <div class="input-section vertical-buttons">
-                <div class="custom-select-wrapper" id="scheduleSelectWrapper">
-                    <div class="modern-select-btn custom-select-btn" id="scheduleSelectBtn">
-                        <span class="select-icon"><i class="fa fa-book"></i></span>
-                        <span class="select-text">اختر المادة</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <ul class="modern-options" id="scheduleOptions">
-                        <li class="modern-option" data-value="كيمياء"><span class="emoji">🧪</span> كيمياء</li>
-                        <li class="modern-option" data-value="فيزياء"><span class="emoji">⚡</span> فيزياء</li>
-                        <li class="modern-option" data-value="أحياء"><span class="emoji">🌱</span> أحياء</li>
-                        <li class="modern-option" data-value="رياضيات"><span class="emoji">➗</span> رياضيات</li>
-                        <li class="modern-option" data-value="اللغة العربية"><span class="emoji">📚</span> اللغة العربية</li>
-                        <li class="modern-option" data-value="اللغة الانكليزية"><span class="emoji">🇬🇧</span> اللغة الانكليزية</li>
-                        <li class="modern-option" data-value="التربية الاسلامية"><span class="emoji">🕌</span> التربية الاسلامية</li>
-                    </ul>
-                </div>
-                <div class="custom-select-wrapper" id="scheduleDayWrapper">
-                    <div class="modern-select-btn custom-select-btn day-select-btn" id="scheduleDayBtn">
-                        <span class="select-icon"><i class="fa fa-calendar-day"></i></span>
-                        <span class="select-text">اختر اليوم</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <ul class="modern-options" id="scheduleDayOptions">
-                        <li class="modern-option" data-value="الأحد"><span class="emoji">🌞</span> الأحد</li>
-                        <li class="modern-option" data-value="الاثنين"><span class="emoji">🌤️</span> الاثنين</li>
-                        <li class="modern-option" data-value="الثلاثاء"><span class="emoji">🌦️</span> الثلاثاء</li>
-                        <li class="modern-option" data-value="الأربعاء"><span class="emoji">🌧️</span> الأربعاء</li>
-                        <li class="modern-option" data-value="الخميس"><span class="emoji">⛅</span> الخميس</li>
-                        <li class="modern-option" data-value="الجمعة"><span class="emoji">🕌</span> الجمعة</li>
-                        <li class="modern-option" data-value="السبت"><span class="emoji">🌙</span> السبت</li>
-                    </ul>
-                </div>
-                <div class="day-time">
-                    <input type="text" id="scheduleTime" class="modern-time-input" placeholder="اختر الوقت" />
-                </div>
-                <button id="addScheduleBtn" class="animated-homework-btn" style="background:linear-gradient(90deg,#6a11cb,#2575fc);color:#fff;">
-                    <i class="fa fa-calendar-plus"></i>
-                    <span style="font-size:1.15rem;font-weight:900;letter-spacing:1px;">إضافة محاضرة </span>
-                </button>
-            </div>
-        </div>
-        <ul id="scheduleList" class="modern-list"></ul>
-    </div>
-
-    <!-- قسم الإشعارات -->
-    <div id="notificationSection" class="hidden">
-        <div class="input-section">
-            <!-- نظام الإشعارات التلقائية قبل المحاضرة بساعة -->
-            <div class="notif-settings-wrapper" style="margin-bottom:24px;">
-                <label style="font-weight:900;font-size:1rem;margin-bottom:8px;display:block;">إشعار تلقائي قبل ساعة من أي محاضرة لديك:</label>
-                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-start;">
-                    <button id="enableAutoLectureNotifBtn" class="modern-btn" style="font-size:1.05rem;padding:10px 28px;">تفعيل إشعار التذكير</button>
-                    <button id="disableAutoLectureNotifBtn" class="modern-btn" style="background:#ff3c3c;font-size:1.05rem;padding:10px 28px;display:none;">إلغاء إشعار التذكير</button>
-                </div>
-                <div style="margin-top:8px;color:#888;font-size:0.92rem;">عند التفعيل سيصلك إشعار تلقائي قبل ساعة من أي محاضرة لديك في الجدول.</div>
-            </div>
-            <div class="auto-lecture-notif-status" style="margin-top:8px;font-weight:700;color:#2575fc;"></div>
-
-            <!-- نظام الإشعارات القديم: إشعار كل مدة يحددها المستخدم -->
-            <div class="notif-settings-wrapper" style="margin-top:32px;">
-                <label for="notifInterval" style="font-weight:900;font-size:1rem;margin-bottom:8px;display:block;">تكرار الإشعار كل:</label>
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-start;">
-                    <input type="number" id="notifIntervalHour" min="0" value="0" class="modern-homework-input notif-time-input" style="max-width:48px;font-size:0.95rem;padding:8px 10px;" placeholder="س" />
-                    <span style="font-weight:700;font-size:0.95rem;">ساعة</span>
-                    <input type="number" id="notifIntervalMin" min="0" value="0" class="modern-homework-input notif-time-input" style="max-width:48px;font-size:0.95rem;padding:8px 10px;" placeholder="د" />
-                    <span style="font-weight:700;font-size:0.95rem;">دقيقة</span>
-                    <input type="number" id="notifIntervalSec" min="0" value="30" class="modern-homework-input notif-time-input" style="max-width:48px;font-size:0.95rem;padding:8px 10px;" placeholder="ث" />
-                    <span style="font-weight:700;font-size:0.95rem;">ثانية</span>
-                    <button id="enableNotifBtn" class="modern-btn" style="font-size:0.98rem;padding:8px 18px;">تفعيل الإشعارات</button>
-                    <button id="disableNotifBtn" class="modern-btn" style="background:#ff3c3c;font-size:0.98rem;padding:8px 18px;">إلغاء الإشعارات</button>
-                </div>
-                <div style="margin-top:8px;color:#888;font-size:0.92rem;">يمكنك تحديد أي مدة تريدها (مثلاً: 1 ساعة و20 دقيقة و30 ثانية أو كل 30 ثانية)</div>
-            </div>
-            <div class="notif-status" style="margin-top:8px;font-weight:700;color:#2575fc;"></div>
-        </div>
-    </div>
-</div>
-
-<script src="script.js" defer></script>
-
-
-<script>
-// Show main app when "ابدأ الآن" is clicked
-document.addEventListener("DOMContentLoaded", function() {
-    const themeToggle = document.getElementById("themeToggle");
-    const themeIcon = document.getElementById("themeIcon");
-    function updateThemeIcon() {
-        if(document.body.classList.contains("dark")) {
-            themeIcon.classList.remove("fa-moon");
-            themeIcon.classList.add("fa-sun");
-        } else {
-            themeIcon.classList.remove("fa-sun");
-            themeIcon.classList.add("fa-moon");
-        }
-    }
-    if(themeToggle) {
-        themeToggle.addEventListener("click", function() {
-            document.body.classList.toggle("dark");
-            updateThemeIcon();
-        });
-        updateThemeIcon();
-    }
-    const startBtn = document.getElementById("startBtn");
-    const welcomeScreen = document.getElementById("welcomeScreen");
-    const mainApp = document.getElementById("mainApp");
-    const clickSound = document.getElementById("clickSound");
-
-    function playClick() {
-        try {
-            clickSound.currentTime = 0;
-            clickSound.play().catch(()=>{});
-        } catch(e) {}
-    }
-
-    function animateButton(btn) {
-        btn.classList.add("clicked-animate");
-        setTimeout(()=>btn.classList.remove("clicked-animate"), 200);
-    }
-
-    // زر ابدأ مع تأثيرات الانتقال
-    if (startBtn && welcomeScreen && mainApp) {
-        startBtn.addEventListener("click", function() {
-            playClick();
-            animateButton(startBtn);
-            welcomeScreen.style.animation = "welcomeFadeOut 0.7s cubic-bezier(.77,0,.18,1) forwards";
-            setTimeout(function() {
-                welcomeScreen.classList.add("hidden");
-                mainApp.classList.remove("hidden");
-                mainApp.classList.add("show");
-                mainApp.style.animation = "mainAppFadeIn 0.7s cubic-bezier(.77,0,.18,1)";
-            }, 650);
-        });
-    }
-
-    // جميع الأزرار الأخرى
-    document.querySelectorAll("button").forEach(btn => {
-        btn.addEventListener("click", function(e) {
-            if(btn !== startBtn) {
-                playClick();
-                animateButton(btn);
-            }
-        });
-    });
-});
-</script>
-</body>
-</html>
