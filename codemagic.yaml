@@ -1,0 +1,32 @@
+workflows:
+  cordova-cross-platform:
+    name: Cordova Android & iOS Build
+    max_build_duration: 60
+    environment:
+      node: latest
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install Cordova
+        script: npm install -g cordova
+      - name: Install project dependencies
+        script: npm install
+      - name: Clean old platforms
+        script: |
+          cordova platform rm android || true
+          cordova platform rm ios || true
+      - name: Add platforms
+        script: |
+          cordova platform add android
+          cordova platform add ios
+      - name: Build Android
+        script: cordova build android --release
+      - name: Build iOS
+        script: cordova build ios --release
+    artifacts:
+      - platforms/android/app/build/outputs/**/*.apk
+      - platforms/ios/build/**/*.ipa
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
